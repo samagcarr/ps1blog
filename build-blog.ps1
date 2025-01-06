@@ -1,3 +1,5 @@
+#!/usr/bin/env -S pwsh -noprofile
+
 param(
     [switch]$BuildMD,
     [switch]$DeleteOrphanHTML,
@@ -209,7 +211,8 @@ if ($BuildMD) {
         $MDCounter = 0
     } -Process {
         $OutHTMLFile = Join-Path $_.Directory "$($_.BaseName).html"
-        pandoc --defaults $Blog\pandoc.yaml -o $OutHTMLFile $_.fullname
+        pandoc --data-dir=$Blog\data\ --defaults=$Blog\data\pandoc.yaml -M date=$($_.CreationTime.ToString("yyyy-MM-dd")) -M title=$($_.BaseName) -o $OutHTMLFile $_.fullname
+        # Wrap .md file in header and footer here - need to insert date, title, eventually other metadata from file
         ++$MDCounter
         Write-Progress -Activity "Processing MD Files: " -CurrentOperation $OutHTMLFile -PercentComplete (( $MDCounter / $MDList.Count )*100) -Status "WORKING"
     } -End { 
